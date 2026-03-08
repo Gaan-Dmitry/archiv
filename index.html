@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Media</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Моя Медиатека</h1>
+        <div id="status">Статус: Проверка...</div>
+    </header>
+
+    <main id="app">
+        <!-- Сюда JS будет добавлять файлы -->
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // Регистрация Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('SW зарегистрирован'))
+                .catch(err => console.error('SW ошибка:', err));
+        }
+    </script>
+</body>
+</html>
