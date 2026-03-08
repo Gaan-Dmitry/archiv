@@ -1,1 +1,0 @@
-Nothing needs to be added to .gitignore since the changes only include source files (.php, .js, .html, .css, .json) and a markdown file (.md), which are not build artifacts, dependencies, or temporary files.
