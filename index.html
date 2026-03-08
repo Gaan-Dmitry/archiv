@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архив Аудио и Фото</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <header>
+        <h1>📁 Архив Аудио и Фото</h1>
+        <nav>
+            <button id="nav-audio" class="active">🎵 Аудио</button>
+            <button id="nav-photo">📷 Фото</button>
+            <button id="nav-admin">⚙️ Админ</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Секция Аудио -->
+        <section id="audio-section" class="section active">
+            <h2>Аудиотека</h2>
+            <div id="audio-list" class="media-list"></div>
+        </section>
+
+        <!-- Секция Фото -->
+        <section id="photo-section" class="section">
+            <h2>Фотогалерея</h2>
+            <div id="photo-list" class="media-list"></div>
+            <p class="beta-notice">🔹 Бета-версия: фото отображаются как заглушки</p>
+        </section>
+
+        <!-- Секция Админ -->
+        <section id="admin-section" class="section">
+            <h2>Панель Администратора</h2>
+            
+            <div class="admin-form">
+                <h3>Добавить Аудио</h3>
+                <form id="add-audio-form">
+                    <input type="text" id="audio-name" placeholder="Название трека" required>
+                    <input type="text" id="audio-key" placeholder="Публичный ключ Яндекс.Диска (https://yadi.sk/d/...)" required>
+                    <button type="submit">Добавить трек</button>
+                </form>
+            </div>
+
+            <div class="admin-form">
+                <h3>Добавить Фото</h3>
+                <form id="add-photo-form">
+                    <input type="text" id="photo-name" placeholder="Название фото" required>
+                    <input type="text" id="photo-key" placeholder="Публичный ключ Яндекс.Диска" required>
+                    <button type="submit">Добавить фото</button>
+                </form>
+            </div>
+
+            <div class="admin-list">
+                <h3>Управление контентом</h3>
+                <div id="admin-audio-list"></div>
+                <div id="admin-photo-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Аудио плеер -->
+    <div id="audio-player-bar" class="player-bar">
+        <audio id="main-audio" controls></audio>
+        <span id="now-playing"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
