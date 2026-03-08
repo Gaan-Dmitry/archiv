@@ -35,11 +35,40 @@ async function getFile(id) {
     });
 }
 
-// 4. Список файлов ( MOCK DATA - замени ссылки на свои с Яндекс.Диска )
+// 4. Список файлов
+// ВАЖНО: Для Яндекс.Диска используйте ПРЯМЫЕ ссылки на файлы
+// Как получить прямую ссылку:
+// 1. Откройте файл на disk.yandex.ru
+// 2. Нажмите "Поделиться" → "Скопировать ссылку"
+// 3. Используйте сервис для получения прямой ссылки, например:
+//    https://yadi.sk/d/<ID_ФАЙЛА> → конвертируйте через api или используйте 
+//    форму: https://cloud-api.yandex.net/v1/disk/public/resources?public_key=<URL>&path=/&limit=100
+//
+// Пример прямой ссылки (замените на свои):
 const mediaList = [
-    { id: '1', type: 'audio', title: 'Трек 1', url: 'https://disk.yandex.ru/d/cCooKS2Id0KMDA' },
-    { id: '2', type: 'image', title: 'Фото 1', url: 'https://via.placeholder.com/300' }
+    { id: '1', type: 'audio', title: 'Трек 1', url: 'https://downloader.disk.yandex.ru/disk/...ВАША_ПРЯМАЯ_ССЫЛКА...' },
+    { id: '2', type: 'image', title: 'Фото 1', url: 'https://downloader.disk.yandex.ru/disk/...ВАША_ПРЯМАЯ_ССЫЛКА...' }
 ];
+
+// Функция для получения прямой ссылки из публичной ссылки Яндекс.Диска
+async function getDirectLink(publicUrl) {
+    // Используем прокси для обхода CORS
+    const corsProxy = 'https://api.allorigins.win/raw?url=';
+    const apiUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(publicUrl)}&path=/`;
+    
+    try {
+        const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+        const data = await response.json();
+        
+        if (data._embedded && data._embedded.items && data._embedded.items.length > 0) {
+            return data._embedded.items[0].file; // Прямая ссылка на файл
+        }
+        throw new Error('Файл не найден');
+    } catch (e) {
+        console.error('Ошибка получения прямой ссылки:', e);
+        throw e;
+    }
+}
 
 // 5. Отрисовка интерфейса
 async function render() {
@@ -73,7 +102,20 @@ async function render() {
         btn.onclick = async () => {
             btn.textContent = 'Загрузка...';
             try {
-                const response = await fetch(item.url);
+                let directUrl = item.url;
+                
+                // Если ссылка на папку/диск Яндекс, получаем прямую ссылку
+                if (item.url.includes('disk.yandex.ru') || item.url.includes('yadi.sk')) {
+                    try {
+                        directUrl = await getDirectLink(item.url);
+                    } catch (e) {
+                        alert('Не удалось получить прямую ссылку. Убедитесь, что файл доступен по публичной ссылке.');
+                        btn.textContent = 'Ошибка';
+                        return;
+                    }
+                }
+                
+                const response = await fetch(directUrl);
                 const blob = await response.blob();
                 await saveFile(item.id, blob, item.type);
                 btn.textContent = 'Уже загружено';
@@ -81,7 +123,8 @@ async function render() {
                 alert('Файл сохранен!');
                 render(); // Перерисовать
             } catch (e) {
-                alert('Ошибка загрузки (проверьте интернет)');
+                console.error('Ошибка загрузки:', e);
+                alert('Ошибка загрузки (проверьте интернет и ссылку)');
                 btn.textContent = 'Ошибка';
             }
         };
@@ -108,6 +151,16 @@ async function render() {
             } else if (!navigator.onLine) {
                 alert('Нет интернета и файл не загружен!');
                 return;
+            } else {
+                // Если онлайн и нет кэша, пробуем получить прямую ссылку
+                if (item.url.includes('disk.yandex.ru') || item.url.includes('yadi.sk')) {
+                    try {
+                        src = await getDirectLink(item.url);
+                    } catch (e) {
+                        alert('Не удалось получить ссылку для просмотра');
+                        return;
+                    }
+                }
             }
 
             mediaContainer.innerHTML = ''; // Очистить старое
